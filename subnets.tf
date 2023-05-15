@@ -75,6 +75,19 @@
 #
 ################################################################################
 
+# Pre-determine the availability zones to use for the public subnets
+locals {
+  public_subnets = [for i,s in var.public_subnets:
+    {
+      cidr = s.cidr
+      zone = s.zone != null ? s.zone : (
+        s.region != null ? local.default_availability_zones[s.region][i % 2] : local.default_availability_zones[local.default_region][i % 2]
+      )
+      region = s.region
+      route_table_id = s.route_table_id != null ? s.route_table_id : data.aws_route_table.rtb_public.id
+    }
+  ]
+}
 
 data "aws_route_table" "rtb_public" {
   filter {
@@ -84,35 +97,29 @@ data "aws_route_table" "rtb_public" {
 }
 
 resource "aws_subnet" "public_subnet" {
-  count = length(var.public_subnets)
+  count = length(local.public_subnets)
 
   vpc_id            = var.vpc_id
-  availability_zone = (
-    var.public_subnets[count.index].zone != null ? var.public_subnets[count.index].zone : (
-        var.public_subnets[count.index].region != null ? local.default_availability_zones[var.public_subnets[count.index].region][count.index % 2] : local.default_availability_zones[local.default_region][count.index % 2]
-    )
-  )
-  cidr_block        = var.public_subnets[count.index].cidr
+  availability_zone = local.public_subnets[count.index].zone
+  cidr_block        = local.public_subnets[count.index].cidr
   map_public_ip_on_launch = true
   # provider          = aws.us-east-1
   tags = {
-    Name = "subnet-${var.account_name}-${local.availability_zones[count.index]}-public-${count.index+1}"
+    Name = "subnet-${var.account_name}-${local.public_subnets[count.index].zone}-public-${count.index+1}"
   }
 }
 
 resource "aws_route_table_association" "rtb_public_subnet" {
-  count = length(var.public_subnets)
+  count = length(local.public_subnets)
 
   subnet_id      = aws_subnet.public_subnet[count.index].id
-  route_table_id = (
-    var.public_subnets[count.index].route_table_id != null ? var.public_subnets[count.index].route_table_id : data.aws_route_table.rtb_public.id
-  )
+  route_table_id = local.public_subnets[count.index].route_table_id
   # provider       = aws.us-east-1
 }
 
 
 resource "aws_ram_resource_association" "share_public_subnet" {
-  count = length(var.public_subnets)
+  count = length(local.public_subnets)
 
   resource_arn       = aws_subnet.public_subnet[count.index].arn
   resource_share_arn = aws_ram_resource_share.share_to_account.arn
