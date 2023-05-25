@@ -38,9 +38,9 @@ variable "campus_subnets" {
 variable "public_subnets" {
   description = "A list of public subnets to create and share. A public subnet is one that has a direct route to the Internet Gateway but cannot access private networks in other regions or sites."
   type = list(object({
-    region = optional(string)
-    zone   = optional(string)
-    cidr   = string
+    region         = optional(string)
+    zone           = optional(string)
+    cidr           = string
     route_table_id = optional(string)
   }))
   default = []
@@ -71,10 +71,10 @@ variable "dmz_subnets" {
 variable "private_subnets" {
   description = "A list of private subnets to create and share."
   type = list(object({
-    region = string
-    zone   = string
-    cidr   = string
-    route_table_id = string
+    region         = optional(string)
+    zone           = optional(string)
+    cidr           = string
+    route_table_id = optional(string)
   }))
   default = []
   validation {
