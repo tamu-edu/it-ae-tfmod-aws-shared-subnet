@@ -208,11 +208,11 @@ locals {
 }
 
 data "aws_route_table" "rtb_private" {
-  count = length(local.private_subnets)
+  count = length(var.private_subnets)
 
   filter {
     name   = "tag:Name"
-    values = ["rtb-vpc1-private-subnets-${local.private_subnets[count.index].zone}"]
+    values = ["rtb-vpc1-private-subnets-${local.default_availability_zones[local.default_region][count.index]}"]
   }
 }
 
@@ -264,11 +264,11 @@ locals {
 }
 
 data "aws_route_table" "rtb_campus" {
-  count = length(local.campus_subnets)
+  count = length(var.campus_subnets)
 
   filter {
     name   = "tag:Name"
-    values = ["rtb-vpc1-campus-subnets-${local.campus_subnets[count.index].zone}"]
+    values = ["rtb-vpc1-campus-subnets-${local.default_availability_zones[local.default_region][count.index]}"]
   }
 }
 
