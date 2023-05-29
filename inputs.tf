@@ -22,9 +22,10 @@ variable "vpc_id" {
 variable "campus_subnets" {
   description = "A list of campus subnets to create and share. A campus subnet is a private subnet that uses a NAT Gateway to access the internet and has direct connectivity back to campus."
   type = list(object({
-    region = string
-    zone   = string
-    cidr   = string
+    region         = optional(string)
+    zone           = optional(string)
+    cidr           = string
+    route_table_id = optional(string)
   }))
   default = []
   validation {
@@ -55,9 +56,10 @@ variable "public_subnets" {
 variable "dmz_subnets" {
   description = "A list of DMZ subnets to create and share. A DZM subnet is one that has a direct route to the Internet Gateway and can access private networks in other regions or sites through a firewall."
   type = list(object({
-    region = string
-    zone   = string
-    cidr   = string
+    region         = optional(string)
+    zone           = optional(string)
+    cidr           = string
+    route_table_id = optional(string)
   }))
   default = []
   validation {
