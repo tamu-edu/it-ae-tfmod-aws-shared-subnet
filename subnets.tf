@@ -198,23 +198,21 @@ resource "aws_ram_resource_association" "share_dmz_subnet" {
 locals {
   private_subnets = [for i, s in var.private_subnets :
     {
-      cidr = s.cidr
-      zone = s.zone != null ? s.zone : (
-        s.region != null ? local.default_availability_zones[s.region][i % 2] : local.default_availability_zones[local.default_region][i % 2]
-      )
+      cidr           = s.cidr
+      zone           = s.zone
       region         = s.region
-      route_table_id = s.route_table_id != null ? s.route_table_id : data.aws_route_table.rtb_private[i].id
       name           = s.name != null ? s.name : "private-${i + 1}"
+      route_table_id = s.route_table_id != null ? s.route_table_id : data.aws_route_table.rtb_private[s.zone].id
     }
   ]
 }
 
 data "aws_route_table" "rtb_private" {
-  count = length(var.private_subnets)
+  for_each = toset(local.default_availability_zones[local.default_region])
 
   filter {
     name   = "tag:Name"
-    values = ["rtb-vpc1-private-subnets-${local.default_availability_zones[local.default_region][count.index]}"]
+    values = ["rtb-vpc1-private-subnets-${local.default_availability_zones[local.default_region][index(local.default_availability_zones[local.default_region], each.value)]}"]
   }
 }
 
@@ -261,17 +259,19 @@ locals {
         s.region != null ? local.default_availability_zones[s.region][i % 2] : local.default_availability_zones[local.default_region][i % 2]
       )
       region         = s.region
-      route_table_id = s.route_table_id != null ? s.route_table_id : data.aws_route_table.rtb_campus[i].id
+      route_table_id = s.route_table_id != null ? s.route_table_id : data.aws_route_table.rtb_campus[s.zone].id
     }
   ]
 }
 
+
+
 data "aws_route_table" "rtb_campus" {
-  count = length(var.campus_subnets)
+  for_each = toset(local.default_availability_zones[local.default_region])
 
   filter {
     name   = "tag:Name"
-    values = ["rtb-vpc1-campus-subnets-${local.default_availability_zones[local.default_region][count.index]}"]
+    values = ["rtb-vpc1-campus-subnets-${local.default_availability_zones[local.default_region][index(local.default_availability_zones[local.default_region], each.value)]}"]
   }
 }
 
