@@ -26,6 +26,7 @@ variable "campus_subnets" {
     zone           = optional(string)
     cidr           = string
     route_table_id = optional(string)
+    name           = optional(string)
   }))
   default = []
   validation {
@@ -43,6 +44,7 @@ variable "public_subnets" {
     zone           = optional(string)
     cidr           = string
     route_table_id = optional(string)
+    name           = optional(string)
   }))
   default = []
   validation {
@@ -77,6 +79,7 @@ variable "private_subnets" {
     zone           = optional(string)
     cidr           = string
     route_table_id = optional(string)
+    name           = optional(string)
   }))
   default = []
   validation {
