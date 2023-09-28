@@ -204,6 +204,7 @@ locals {
       )
       region         = s.region
       route_table_id = s.route_table_id != null ? s.route_table_id : data.aws_route_table.rtb_private[i].id
+      name           = s.name != null ? s.name : "private-${i + 1}"
     }
   ]
 }
@@ -255,6 +256,7 @@ locals {
   campus_subnets = [for i, s in var.campus_subnets :
     {
       cidr = s.cidr
+      name = s.name != null ? s.name : "campus-${i + 1}"
       zone = s.zone != null ? s.zone : (
         s.region != null ? local.default_availability_zones[s.region][i % 2] : local.default_availability_zones[local.default_region][i % 2]
       )
