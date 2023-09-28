@@ -80,6 +80,7 @@ locals {
   public_subnets = [for i, s in var.public_subnets :
     {
       cidr = s.cidr
+      name = s.name != null ? s.name : "public-${i + 1}"
       zone = s.zone != null ? s.zone : (
         s.region != null ? local.default_availability_zones[s.region][i % 2] : local.default_availability_zones[local.default_region][i % 2]
       )
@@ -105,7 +106,7 @@ resource "aws_subnet" "public_subnet" {
   map_public_ip_on_launch = true
   # provider          = aws.us-east-1
   tags = {
-    Name = "subnet-${var.account_name}-${local.public_subnets[count.index].zone}-public-${count.index + 1}"
+    Name = "subnet-${var.account_name}-${local.public_subnets[count.index].zone}-${local.public_subnets[count.index].name}"
   }
 }
 
@@ -223,7 +224,7 @@ resource "aws_subnet" "private_subnet" {
   availability_zone = local.private_subnets[count.index].zone
   cidr_block        = local.private_subnets[count.index].cidr
   tags = {
-    Name = "subnet-${var.account_name}-${local.private_subnets[count.index].zone}-private-${count.index + 1}"
+    Name = "subnet-${var.account_name}-${local.private_subnets[count.index].zone}-${local.private_subnets[count.index].name}"
   }
 }
 
@@ -279,7 +280,7 @@ resource "aws_subnet" "campus_subnet" {
   availability_zone = local.campus_subnets[count.index].zone
   cidr_block        = local.campus_subnets[count.index].cidr
   tags = {
-    Name = "subnet-${var.account_name}-${local.campus_subnets[count.index].zone}-campus-${count.index + 1}"
+    Name = "subnet-${var.account_name}-${local.campus_subnets[count.index].zone}-${local.campus_subnets[count.index].name}"
   }
 }
 
